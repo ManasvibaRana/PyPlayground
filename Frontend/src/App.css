@@ -4,11 +4,14 @@ body{
   background-color: rgb(10, 10, 47);
   color: white;
 }
+html {
+  scroll-behavior: smooth;
+}
 
 
 
 nav{
-  background-color: rgb(10, 10, 47);
+  background-color: rgb(16, 16, 60);
 }
 
 #bgcolor{

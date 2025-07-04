@@ -1,5 +1,4 @@
 
-import svg from "./SVG.svg";
 import Footercard from "./Footercard";
         
 
@@ -42,7 +41,7 @@ export default function Footer() {
       
 
       <div className="text-start text-sm text-gray-500 mt-10">
-          <div class="flex justify-end">
+          <div className="flex justify-end">
          <Footercard/>
         </div>
         © {new Date().getFullYear()} PyPlayground. All rights reserved.

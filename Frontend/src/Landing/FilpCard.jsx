@@ -1,8 +1,8 @@
 import React from "react";
-import Pythonlogo from "./Pythonlogo.png"
-import techw from "./techw.png";
-import community from "./community.png"
-import endless from "./endless.png"
+import Pythonlogo from "./images/Pythonlogo.png"
+import techw from "./images/techw.png";
+import community from "./images/community.png"
+import endless from "./images/endless.png"
 const cardsData = [
   {
     frontTitle: "Why Python?",
