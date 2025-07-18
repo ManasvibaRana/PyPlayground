@@ -5,9 +5,10 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Routes, Route } from 'react-router-dom';
 import Login from './checklogin/Login';
-import FaceRecognition from './Face_recognition/facerecognition'
+import FaceRecognition from './Face_recognition/FaceRecognition'
 import Home from './Explore/Home';
 import Signup from './checklogin/Signup';
+
 
 
 function App() {

@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 from pyplayground.views import login_user,signup_user  # import your login view
 
@@ -24,4 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
      path('api/login/', login_user, name='login'),
      path('api/signup/', signup_user, name='signup'),
+    path('facereco/', include('facerecognition.urls')),
 ]

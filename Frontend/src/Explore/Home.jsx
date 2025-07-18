@@ -6,8 +6,12 @@ import hand from "./images/hand.gif"
 import prediction from "./images/prediction.gif"
 import voice from "./images/voice.gif"
 import bg from "./images/bg.mp4"
+import Button from "./Button";
+import { useNavigate } from "react-router";
 
 function Home() {
+
+
     return(
         <>
         <div>
@@ -48,6 +52,8 @@ function Home() {
       />
       <h3 className="text-xl font-bold mb-2">face_recognition</h3>
       <p className="text-center text-sm">Detect and recognize human faces using just your webcam.</p>
+      <div className="p-2"><Button to="/facereco" /></div>
+      
     </div>
 
     {/* Card 2 */}
