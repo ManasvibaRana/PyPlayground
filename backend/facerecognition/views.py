@@ -10,7 +10,6 @@ import face_recognition
 class UploadFaceView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
-    # Store in memory
     KNOWN_FACES = []
 
     def post(self, request):

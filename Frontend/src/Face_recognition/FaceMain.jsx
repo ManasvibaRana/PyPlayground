@@ -1,37 +1,27 @@
-// import React, { useState } from 'react';
-// import FaceInfo from './FaceInfo';
-// import FaceTrainer from './FaceTrainer';
-// import FaceTester from './FaceTester';
-// import '../App.css';
+import React, { useState } from 'react';
+import FaceTrainer from './FaceTrainer';
+import FaceTester from './FaceTester';
 
-// export default function FaceMain() {
-//   const [isTrained, setIsTrained] = useState(false);
+export default function FaceMain() {
+  const [isTrained, setIsTrained] = useState(false);
 
-//   return (
-//     <div className="p-8 bg-gray-900 min-h-screen">
-//       <FaceInfo />
-//       {!isTrained && (
-//         <FaceTrainer onTrainComplete={() => setIsTrained(true)} />
-//       )}
-//       {isTrained && (
-//         <FaceTester />
-//       )}
+  const handleTrainComplete = () => {
+    setIsTrained(true);
+  };
 
-//       {/* Spinner style once for all */}
-//       <style>{`
-//         .loader {
-//           border: 4px solid #f3f3f3;
-//           border-top: 4px solid #4B8BBE;
-//           border-radius: 50%;
-//           width: 20px;
-//           height: 20px;
-//           animation: spin 1s linear infinite;
-//         }
-//         @keyframes spin {
-//           0% { transform: rotate(0deg);}
-//           100% { transform: rotate(360deg);}
-//         }
-//       `}</style>
-//     </div>
-//   );
-// }
+  const handleStopTest = () => {
+    setIsTrained(false);
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center px-10 bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#1c1c3a] min-h-10 text-white">
+     
+      {!isTrained && (
+        <FaceTrainer onTrainComplete={handleTrainComplete} />
+      )}
+      {isTrained && (
+        <FaceTester onStop={handleStopTest} />
+      )}
+    </div>
+  );
+}

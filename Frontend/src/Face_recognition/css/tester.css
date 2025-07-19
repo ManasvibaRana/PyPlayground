@@ -1,0 +1,8 @@
+body {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.text-neon {
+  color: #22c55e; /* emerald green */
+}
