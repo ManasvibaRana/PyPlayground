@@ -1,14 +1,14 @@
 # Django REST Framework Views Reference
 # Place this in your Django app's views.py file
 
-from datetime import timezone
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import ProjectJoinRequest, ProjectMessage, Project, ProjectMember
-from .serializers import ProjectSerializer, ProjectDetailsSerializer, ProjectMessageSerializer
+from .serializers import ProjectSerializer, ProjectDetailsSerializer, ProjectMessageSerializer , JoinRequestSerializer
 
 
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -180,3 +180,34 @@ def project_chat(request, project_id):
         msg = ProjectMessage.objects.create(project=project, sender=request.user, message=message_text)
         serializer = ProjectMessageSerializer(msg)
         return Response(serializer.data, status=201)
+    
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    user = request.user
+    return Response({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_project_join_requests(request, project_id):
+    """
+    GET /projects/{id}/requests/ - Owner can see all join requests for this project
+    """
+    project = get_object_or_404(Project, id=project_id)
+    if request.user != project.created_by:
+        return Response({'detail': 'Forbidden'}, status=403)
+    
+    qs = ProjectJoinRequest.objects.filter(project=project).order_by('-requested_at')
+    serializer = JoinRequestSerializer(qs, many=True)
+    return Response(serializer.data)

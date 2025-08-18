@@ -22,12 +22,21 @@ export const ProjectsList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [joinMessage, setJoinMessage] = useState(null);
   const [currentProjectId, setCurrentProjectId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const init = async () => {
       try {
         await fetch('http://localhost:8000/collab/csrf/', { credentials: 'include' });
-        await loadProjects();
+
+        // Get logged-in user
+        const userRes = await axios.get('http://localhost:8000/collab/current_user/', {
+          withCredentials: true,
+          headers: { 'X-CSRFToken': getCsrfToken() },
+        });
+        setCurrentUser(userRes.data);
+
+        await loadProjects(userRes.data.id);
       } catch (err) {
         console.error(err);
       }
@@ -35,7 +44,7 @@ export const ProjectsList = () => {
     init();
   }, []);
 
-  const loadProjects = async () => {
+  const loadProjects = async (userId) => {
     try {
       setLoading(true);
       const response = await axios.get('http://localhost:8000/collab/projects/', {
@@ -43,7 +52,16 @@ export const ProjectsList = () => {
         headers: { 'X-CSRFToken': getCsrfToken() },
         params: searchTerm ? { search: searchTerm } : {}
       });
-      setProjects(response.data);
+
+      // Mark if current user has already requested
+      const projectsWithRequested = response.data.map(project => {
+        const hasRequested = project.join_requests?.some(
+          req => req.user.id === userId && req.status === 'pending'
+        );
+        return { ...project, requested: hasRequested };
+      });
+
+      setProjects(projectsWithRequested);
     } catch (err) {
       console.error(err);
       setJoinMessage({ type: 'error', text: 'Failed to load projects.' });
@@ -61,7 +79,7 @@ export const ProjectsList = () => {
         { withCredentials: true, headers: { 'X-CSRFToken': getCsrfToken() } }
       );
       setJoinMessage({ type: 'success', text: 'Project created successfully!' });
-      await loadProjects();
+      if (currentUser) await loadProjects(currentUser.id);
 
       if (response.data?.id) setCurrentProjectId(response.data.id);
     } catch (err) {
@@ -85,12 +103,15 @@ export const ProjectsList = () => {
         type: response.data.success ? 'success' : 'error',
         text: response.data.message
       });
-      if (response.data.success) await loadProjects();
+      if (response.data.success && currentUser) await loadProjects(currentUser.id);
+
+      return response.data.success;
     } catch (err) {
       setJoinMessage({
         type: 'error',
         text: err.response?.data?.message || 'Failed to join project.'
       });
+      return false;
     } finally {
       setTimeout(() => setJoinMessage(null), 3000);
     }
@@ -102,10 +123,11 @@ export const ProjectsList = () => {
     project.tech_stack.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  if (currentProjectId) {
+  if (currentProjectId && currentUser) {
     return (
       <ProjectDetails
         projectId={currentProjectId}
+        currentUser={currentUser}
         onBack={() => setCurrentProjectId(null)}
       />
     );
@@ -140,7 +162,7 @@ export const ProjectsList = () => {
           placeholder="Search projects..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && loadProjects()}
+          onKeyDown={e => e.key === 'Enter' && currentUser && loadProjects(currentUser.id)}
           className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -155,6 +177,7 @@ export const ProjectsList = () => {
             <ProjectCard
               key={project.id}
               project={project}
+              currentUser={currentUser}
               onViewDetails={setCurrentProjectId}
               onJoinProject={handleJoinProject}
             />

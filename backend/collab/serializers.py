@@ -3,7 +3,10 @@
 
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Project, ProjectMember
+from .models import Project, ProjectMember,ProjectJoinRequest, ProjectMessage
+
+from django.contrib.auth import get_user_model
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -46,11 +49,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 
-
-
-from rest_framework import serializers
-from .models import ProjectJoinRequest, ProjectMessage
-
 class ProjectJoinRequestSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:
@@ -73,3 +71,56 @@ class ProjectDetailsSerializer(ProjectSerializer):
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + ['members', 'join_requests']
+
+
+
+User = get_user_model()
+
+class UserMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username')
+
+class ProjectMessageSerializer(serializers.ModelSerializer):
+    # Expose a 'user' field (maps from sender), so frontend can do msg.user.username
+    user = UserMiniSerializer(source='sender', read_only=True)
+
+    class Meta:
+        model = ProjectMessage
+        fields = ('id', 'message', 'created_at', 'user')
+
+class JoinRequestSerializer(serializers.ModelSerializer):
+    user = UserMiniSerializer(read_only=True)
+
+    class Meta:
+        model = ProjectJoinRequest
+        fields = ('id', 'user', 'message', 'status', 'requested_at')
+
+
+class ProjectDetailsSerializer(serializers.ModelSerializer):
+    created_by = UserMiniSerializer(read_only=True)
+    member_count = serializers.SerializerMethodField()
+    is_member = serializers.SerializerMethodField()
+    has_pending_request = serializers.SerializerMethodField()
+    join_requests = JoinRequestSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = (
+            'id', 'title', 'description', 'created_at', 'created_by',
+            'member_count', 'is_member', 'has_pending_request',
+            'tech_stack', 'join_requests',
+        )
+
+    def get_member_count(self, obj):
+        return ProjectMember.objects.filter(project=obj).count()
+
+    def get_is_member(self, obj):
+        user = self.context['request'].user
+        return ProjectMember.objects.filter(project=obj, user=user).exists()
+
+    def get_has_pending_request(self, obj):
+        user = self.context['request'].user
+        return ProjectJoinRequest.objects.filter(
+            project=obj, user=user, status='pending'
+        ).exists()
