@@ -6,8 +6,8 @@ urlpatterns = [
     path('projects/', views.ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<int:pk>/', views.ProjectDetailView.as_view(), name='project-detail'),
 
-    # JOIN FLOW
-    path('projects/<int:project_id>/join/', views.join_project, name='join-project'),  # if you keep direct join
+   
+ 
     path('projects/<int:project_id>/request_join/', views.request_join_project, name='request-join'),
 
     # ✅ NEW: list all join requests for a project (owner only)
@@ -15,6 +15,8 @@ urlpatterns = [
 
     # CHAT
     path('projects/<int:project_id>/chat/', views.project_chat, name='project-chat'),
+    path('join_requests/<int:request_id>/chat/', views.join_request_chat, name='join-request-chat'),
+
 
     # CURRENT USER
     path('current_user/', views.current_user, name='current-user'),

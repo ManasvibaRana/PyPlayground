@@ -1,115 +1,90 @@
-# Django REST Framework Serializers Reference
-# Place this in your Django app's serializers.py file
-
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import Project, ProjectMember,ProjectJoinRequest, ProjectMessage
-
 from django.contrib.auth import get_user_model
+from .models import Project, ProjectMember, ProjectJoinRequest, ProjectMessage
+
+User = get_user_model()
 
 
-
-class UserSerializer(serializers.ModelSerializer):
+# Mini User Serializer
+class UserMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ('id', 'username')
 
 
+# Project Member Serializer
 class ProjectMemberSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = UserMiniSerializer(read_only=True)
 
     class Meta:
         model = ProjectMember
         fields = ['id', 'project_id', 'user', 'role', 'joined_at']
 
 
+# Project Serializer (list + create)
 class ProjectSerializer(serializers.ModelSerializer):
-    created_by = UserSerializer(read_only=True)
-    member_count = serializers.ReadOnlyField()
+    created_by = UserMiniSerializer(read_only=True)
+    member_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'tech_stack', 'looking_for', 
-                 'created_by', 'created_at', 'member_count']
+        fields = [
+            'id', 'title', 'description', 'tech_stack', 'looking_for',
+            'created_by', 'created_at', 'member_count'
+        ]
         read_only_fields = ['created_by', 'created_at']
 
+    def get_member_count(self, obj):
+        return ProjectMember.objects.filter(project=obj).count()
+
     def create(self, validated_data):
-        # Set the created_by field to the current user
         validated_data['created_by'] = self.context['request'].user
         project = Project.objects.create(**validated_data)
-        
-        # Automatically add the creator as owner
+        # Owner auto-added
         ProjectMember.objects.create(
             project=project,
             user=project.created_by,
             role='owner'
         )
-        
         return project
 
 
+# Join Request Serializer
+class JoinRequestSerializer(serializers.ModelSerializer):
+    user = UserMiniSerializer(read_only=True)
 
-class ProjectJoinRequestSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
     class Meta:
         model = ProjectJoinRequest
-        fields = ['id', 'project', 'user', 'message', 'status', 'requested_at', 'responded_at']
+        fields = ('id', 'user', 'message', 'status', 'requested_at', 'responded_at')
 
-        
+
+# Project Message Serializer
 class ProjectMessageSerializer(serializers.ModelSerializer):
-    sender_username = serializers.CharField(source='sender.username', read_only=True)
-
-    class Meta:
-        model = ProjectMessage
-        fields = ['id', 'project', 'sender', 'sender_username', 'message', 'created_at']
-
-
-
-class ProjectDetailsSerializer(ProjectSerializer):
-    members = ProjectMemberSerializer(many=True, read_only=True)
-    join_requests = ProjectJoinRequestSerializer(many=True, read_only=True)
-
-    class Meta(ProjectSerializer.Meta):
-        fields = ProjectSerializer.Meta.fields + ['members', 'join_requests']
-
-
-
-User = get_user_model()
-
-class UserMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username')
-
-class ProjectMessageSerializer(serializers.ModelSerializer):
-    # Expose a 'user' field (maps from sender), so frontend can do msg.user.username
     user = UserMiniSerializer(source='sender', read_only=True)
 
     class Meta:
         model = ProjectMessage
         fields = ('id', 'message', 'created_at', 'user')
 
-class JoinRequestSerializer(serializers.ModelSerializer):
-    user = UserMiniSerializer(read_only=True)
 
-    class Meta:
-        model = ProjectJoinRequest
-        fields = ('id', 'user', 'message', 'status', 'requested_at')
-
-
+# Project Detail Serializer
 class ProjectDetailsSerializer(serializers.ModelSerializer):
     created_by = UserMiniSerializer(read_only=True)
+    members = ProjectMemberSerializer(many=True, read_only=True)
+    join_requests = JoinRequestSerializer(many=True, read_only=True)
     member_count = serializers.SerializerMethodField()
     is_member = serializers.SerializerMethodField()
     has_pending_request = serializers.SerializerMethodField()
-    join_requests = JoinRequestSerializer(many=True, read_only=True)
+    pending_request_id = serializers.SerializerMethodField()   # 👈 NEW
 
     class Meta:
         model = Project
         fields = (
             'id', 'title', 'description', 'created_at', 'created_by',
             'member_count', 'is_member', 'has_pending_request',
-            'tech_stack', 'join_requests',
+            'pending_request_id',    # 👈 include it here
+            'tech_stack', 'looking_for',
+            'members', 'join_requests',
         )
 
     def get_member_count(self, obj):
@@ -124,3 +99,10 @@ class ProjectDetailsSerializer(serializers.ModelSerializer):
         return ProjectJoinRequest.objects.filter(
             project=obj, user=user, status='pending'
         ).exists()
+
+    def get_pending_request_id(self, obj):
+        user = self.context['request'].user
+        jr = ProjectJoinRequest.objects.filter(
+            project=obj, user=user, status='pending'
+        ).first()
+        return jr.id if jr else None

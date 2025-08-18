@@ -107,15 +107,22 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
   };
 
   const refreshChat = async () => {
-    try {
-      const { data } = await axios.get(`${API_BASE}/projects/${projectId}/chat/`, {
-        withCredentials: true,
-      });
-      setChat(Array.isArray(data) ? data : []);
-    } catch (err) {
+  try {
+    let url;
+    if (isMember) {
+      url = `${API_BASE}/projects/${projectId}/chat/`;
+    } else if (hasPending && project.pending_request_id) {
+      url = `${API_BASE}/join_requests/${project.pending_request_id}/chat/`;
+    } else {
       setChat([]);
+      return;
     }
-  };
+    const { data } = await axios.get(url, { withCredentials: true });
+    setChat(Array.isArray(data) ? data : []);
+  } catch (err) {
+    setChat([]);
+  }
+};
 
   // === Join Flow: request-based ===
   const handleRequestJoin = async () => {
@@ -159,20 +166,28 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
   };
 
   // === Chat ===
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
-    try {
-      const { data } = await axios.post(
-        `${API_BASE}/projects/${projectId}/chat/`,
-        { message: newMessage },
-        { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
-      );
-      setChat((prev) => [...prev, data]);
-      setNewMessage('');
-    } catch (err) {
-      console.error('Error sending message:', err);
+ const handleSendMessage = async () => {
+  if (!newMessage.trim()) return;
+  try {
+    let url;
+    if (isMember) {
+      url = `${API_BASE}/projects/${projectId}/chat/`;
+    } else if (hasPending && project.pending_request_id) {
+      url = `${API_BASE}/join_requests/${project.pending_request_id}/chat/`;
+    } else {
+      return; // not allowed
     }
-  };
+    const { data } = await axios.post(
+      url,
+      { message: newMessage },
+      { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
+    );
+    setChat((prev) => [...prev, data]);
+    setNewMessage('');
+  } catch (err) {
+    console.error('Error sending message:', err);
+  }
+};
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (!project) return <div className="p-8 text-center text-red-600">Project not found.</div>;

@@ -48,36 +48,6 @@ class ProjectDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def join_project(request, project_id):
-    """
-    POST /projects/{id}/join/ - Join a project
-    """
-    project = get_object_or_404(Project, id=project_id)
-    user = request.user
-
-    # Check if user is already a member
-    if ProjectMember.objects.filter(project=project, user=user).exists():
-        return Response(
-            {'success': False, 'message': 'You are already a member of this project'}, 
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # Add user as member
-    ProjectMember.objects.create(
-        project=project,
-        user=user,
-        role='member'
-    )
-
-    return Response(
-        {'success': True, 'message': 'Successfully joined the project!'}, 
-        status=status.HTTP_201_CREATED
-    )
-
-
-
 
 
 # Request to join
@@ -211,3 +181,122 @@ def list_project_join_requests(request, project_id):
     qs = ProjectJoinRequest.objects.filter(project=project).order_by('-requested_at')
     serializer = JoinRequestSerializer(qs, many=True)
     return Response(serializer.data)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def project_chat(request, project_id):
+    """
+    Group chat: 
+    - Only approved members can see/post messages.
+    - Pending join requests cannot see messages until accepted.
+    """
+    project = get_object_or_404(Project, id=project_id)
+    user = request.user
+
+    # Check membership status
+    membership = ProjectMember.objects.filter(project=project, user=user).first()
+    if not membership:
+        return Response({'detail': 'You must be a project member to access chat'}, status=403)
+
+    # GET messages
+    if request.method == 'GET':
+        messages = project.messages.all().order_by('created_at')
+        serializer = ProjectMessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    # POST message
+    if request.method == 'POST':
+        message_text = request.data.get('message', '').strip()
+        if not message_text:
+            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
+        
+        msg = ProjectMessage.objects.create(project=project, sender=user, message=message_text)
+        serializer = ProjectMessageSerializer(msg)
+        return Response(serializer.data, status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_join_request_messages(request, request_id):
+    """
+    Private 1:1 chat for join request:
+    - Only requester and owner can see messages.
+    - Used before being accepted into group chat.
+    """
+    join_request = get_object_or_404(ProjectJoinRequest, id=request_id)
+    user = request.user
+
+    if user != join_request.user and user != join_request.project.created_by:
+        return Response({'success': False, 'message': 'Not allowed'}, status=403)
+
+    messages = join_request.messages.all().order_by('created_at')
+    serializer = ProjectMessageSerializer(messages, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def project_chat(request, project_id):
+    """
+    Group chat:
+    - Only approved members can see/post messages.
+    - Pending join requests cannot see messages until accepted.
+    """
+    project = get_object_or_404(Project, id=project_id)
+    user = request.user
+
+    # Check if user is member
+    membership = ProjectMember.objects.filter(project=project, user=user).first()
+    if not membership:
+        return Response({
+            'detail': 'You are not a member yet. '
+                      'Use join request chat until accepted.'
+        }, status=403)
+
+    # ✅ Members only: fetch or send group chat messages
+    if request.method == 'GET':
+        messages = project.messages.filter(join_request__isnull=True).order_by('created_at')
+        serializer = ProjectMessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        message_text = request.data.get('message', '').strip()
+        if not message_text:
+            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
+
+        msg = ProjectMessage.objects.create(project=project, sender=user, message=message_text)
+        serializer = ProjectMessageSerializer(msg)
+        return Response(serializer.data, status=201)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def join_request_chat(request, request_id):
+    """
+    Private chat for join request:
+    - Only requester and project owner can send/see these messages.
+    - Lets requester talk to admin before being accepted.
+    """
+    join_request = get_object_or_404(ProjectJoinRequest, id=request_id)
+    user = request.user
+
+    # Permission check
+    if user != join_request.user and user != join_request.project.created_by:
+        return Response({'detail': 'Not allowed'}, status=403)
+
+    if request.method == 'GET':
+        messages = join_request.messages.all().order_by('created_at')
+        serializer = ProjectMessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        message_text = request.data.get('message', '').strip()
+        if not message_text:
+            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
+
+        msg = ProjectMessage.objects.create(
+            join_request=join_request,
+            sender=user,
+            message=message_text
+        )
+        serializer = ProjectMessageSerializer(msg)
+        return Response(serializer.data, status=201)
