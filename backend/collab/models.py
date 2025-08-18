@@ -42,3 +42,38 @@ class ProjectMember(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.project.title} ({self.role})"
+    
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class ProjectJoinRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='join_requests')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='project_join_requests')
+    message = models.TextField(blank=True, null=True)  # optional message to owner
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    requested_at = models.DateTimeField(default=timezone.now)
+    responded_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['project', 'user']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.project.title} ({self.status})"
+
+class ProjectMessage(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="messages", null=True, blank=True)
+    join_request = models.ForeignKey('ProjectJoinRequest', on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.sender.username}: {self.message[:20]}"

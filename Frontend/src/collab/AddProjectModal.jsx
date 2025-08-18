@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Plus } from 'lucide-react';
-import axios from 'axios';
 import { TechStackBadge } from './TechStackBadge';
 
 const AddProjectModal = ({ isOpen, onClose, onSubmit, existingProjects = [] }) => {
@@ -8,55 +7,31 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, existingProjects = [] }) =
   const [description, setDescription] = useState('');
   const [techStack, setTechStack] = useState('');
   const [lookingFor, setLookingFor] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   if (!isOpen) return null;
 
-  const getCsrfToken = () => {
-    const name = 'csrftoken=';
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name)) return cookie.substring(name.length);
-    }
-    return '';
-  };
-
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!title || !description || !techStack) {
       setError('Please fill in all required fields.');
       return;
     }
 
-    // ✅ Frontend duplicate check
     if (existingProjects.some(p => p.title.toLowerCase() === title.toLowerCase())) {
       setError('A project with this title already exists.');
       return;
     }
 
-    setLoading(true);
     setError(null);
 
-    try {
-      const response = await axios.post(
-        'http://localhost:8000/collab/projects/',
-        {
-          title,
-          description,
-          tech_stack: techStack.split(',').map(t => t.trim()),
-          looking_for: lookingFor,
-        },
-        {
-          headers: {
-            'X-CSRFToken': getCsrfToken(),
-            Authorization: `Bearer ${sessionStorage.getItem('token')}` // optional if using token
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (onSubmit) onSubmit(response.data);
+    // ✅ Only pass data to parent
+    if (onSubmit) {
+      onSubmit({
+        title,
+        description,
+        tech_stack: techStack.split(',').map(t => t.trim()),
+        looking_for: lookingFor,
+      });
 
       // Reset modal
       onClose();
@@ -64,10 +39,6 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, existingProjects = [] }) =
       setDescription('');
       setTechStack('');
       setLookingFor('');
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create project.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -122,10 +93,9 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, existingProjects = [] }) =
 
         <button
           onClick={handleCreate}
-          disabled={loading}
-          className="mt-5 w-full flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="mt-5 w-full flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          {loading ? 'Creating...' : <><Plus className="w-4 h-4 mr-2" /> Create Project</>}
+          <Plus className="w-4 h-4 mr-2" /> Create Project
         </button>
       </div>
     </div>

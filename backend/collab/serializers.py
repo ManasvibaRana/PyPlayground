@@ -45,8 +45,31 @@ class ProjectSerializer(serializers.ModelSerializer):
         return project
 
 
+
+
+
+from rest_framework import serializers
+from .models import ProjectJoinRequest, ProjectMessage
+
+class ProjectJoinRequestSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = ProjectJoinRequest
+        fields = ['id', 'project', 'user', 'message', 'status', 'requested_at', 'responded_at']
+
+        
+class ProjectMessageSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+
+    class Meta:
+        model = ProjectMessage
+        fields = ['id', 'project', 'sender', 'sender_username', 'message', 'created_at']
+
+
+
 class ProjectDetailsSerializer(ProjectSerializer):
     members = ProjectMemberSerializer(many=True, read_only=True)
+    join_requests = ProjectJoinRequestSerializer(many=True, read_only=True)
 
     class Meta(ProjectSerializer.Meta):
-        fields = ProjectSerializer.Meta.fields + ['members']
+        fields = ProjectSerializer.Meta.fields + ['members', 'join_requests']

@@ -41,7 +41,7 @@ const Signup = () => {
         alert("Signup failed: " + (data.message || "Unknown error"));
       } else {
         alert("Signup successful!");
-        navigate("/login"); // Redirect to login page
+        navigate("/explore"); // Redirect to login page
       }
     } catch (error) {
       alert("Network or parsing error: " + error.message);

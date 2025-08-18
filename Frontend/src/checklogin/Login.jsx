@@ -39,6 +39,9 @@ const Login = () => {
       if (!response.ok) {
         alert("Login failed: " + (data.message || "Unknown error"));
       } else {
+
+        sessionStorage.setItem("user_id", data.user_id || data.id); // use user id if returned
+        sessionStorage.setItem("username", data.username);
         alert("Login successful! Welcome, " + data.username);
         navigate("/"); // Redirect to home/dashboard
       }

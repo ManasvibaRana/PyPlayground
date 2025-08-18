@@ -52,7 +52,7 @@ def login_user(request):
         user = authenticate(username=username, password=password)
         if user:
             login(request, user)
-            return JsonResponse({'status': 'success', 'username': user.username})
+            return JsonResponse({'status': 'success', 'username': user.username, 'user_id': user.id})
         else:
             return JsonResponse({'status': 'error', 'message': 'Invalid credentials'}, status=401)
 
