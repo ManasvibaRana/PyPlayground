@@ -1,0 +1,8 @@
+.section.reverse .text-container {
+    padding-left: 0;
+}
+
+/* Keep normal padding for text when image is on the left */
+.section:not(.reverse) .text-container {
+    padding-left: 20px; /* adjust as needed */
+}

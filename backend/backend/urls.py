@@ -22,7 +22,15 @@ from pyplayground.views import login_user,signup_user  # import your login view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('api/login/', login_user, name='login'),
-     path('api/signup/', signup_user, name='signup'),
+    path('api/login/', login_user, name='login'),
+    path('api/signup/', signup_user, name='signup'),
     path('facereco/', include('facerecognition.urls')),
+    path('handcontrol/', include('handcontroll.urls')),
+    path('objectdetaction/',include('yolo.urls')),
+    path('deepface/',include('deep_face.urls')),
+    path('collab/',include('collab.urls')),
+
+ 
+
+    
 ]

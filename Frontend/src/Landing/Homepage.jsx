@@ -40,7 +40,7 @@ function Homepage(){
       <Navbar scrollToSection={scrollToSection}/>
      <div className="overflow-x-hidden">
       <section  ref={homeRef} id="home">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 md:px-16 py-20" >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 md:px-16 py-26" >
         
         <div className="max-w-screen-sm w-full mx-auto" id="headline"  >
            <h1 className="break-words text-4xl md:text-7xl  pt-10 pb-5 font-extrabold  text-amber-300 " data-aos="zoom-in" data-aos-delay="200"><span className="text-blue-400">PyPlay</span>ground </h1>

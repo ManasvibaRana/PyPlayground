@@ -1,110 +1,105 @@
-import Input from "./Input";
-import "../App.css"
+import "../App.css";
 import Nav from "./nav";
-import Face_recognition from "./images/Face_recognition.gif"
-import hand from "./images/hand.gif"
-import prediction from "./images/prediction.gif"
-import voice from "./images/voice.gif"
-import bg from "./images/bg.mp4"
+import Face_recognition from "./images/Face_recognition.gif";
+import hand from "./images/hand.gif";
+import yolo from "./images/voice.gif"; // new image for YOLO
+import deepface from "./images/voice.gif"; // new image for DeepFace
+import bg from "./images/bg.mp4";
 import Button from "./Button";
-import { useNavigate } from "react-router";
+import "./css/explore.css";
 
 function Home() {
+  const tools = [
+    {
+      img: Face_recognition,
+      title: "Face Recognition",
+      desc: "Detect and recognize human faces in real-time using your webcam.",
+      link: "/facereco",
+    },
+    {
+      img: hand,
+      title: "Hand Gesture Control",
+      desc: "Control apps or systems with hand gestures using OpenCV.",
+      link: "/handco",
+    },
+    {
+      img: yolo,
+      title: "YOLO Object Detection",
+      desc: "Detect multiple objects in images or video streams with YOLOv8.",
+      link: "/yolo",
+    },
+    {
+      img: deepface,
+      title: "DeepFace Recognition",
+      desc: "Accurately recognize faces using DeepFace models.",
+      link: "/deepface",
+    },
+  ];
 
+  return (
+    <div className="relative w-full h-full">
+      <Nav />
 
-    return(
-        <>
-        <div>
-       
-            <Nav/>
-      
- <div className="relative w-full h-[400px] flex items-center justify-center overflow-hidden   flex-col r text-center bg-cover bg-center">
-  {/* Video background */}
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="absolute top-0 left-0 w-full h-full object-cover z-0"
-  >
-    <source src={bg} type="video/mp4" />
-    Your browser does not support the video tag.
-  </video> 
-            <h1 className="text-4xl md:text-5xl   font-extrabold text-white" data-aos="zoom-in" data-aos-delay="200">Explore powerful Python libraries through live demos</h1>
-            <h3 className="text-2xl font-bold text-blue-300 py-5">Click. Run. See Python in action</h3>
-           <Input/>
+      {/* Hero Section */}
+      <div className="relative w-full h-[500px] flex items-center justify-center text-center overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        >
+          <source src={bg} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="relative z-10 px-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4" data-aos="zoom-in">
+            Explore Powerful Python Libraries in Action
+          </h1>
+          <h3 className="text-2xl font-bold text-blue-300">
+            Click. Run. See Python magic live
+          </h3>
         </div>
+      </div>
 
-<div className="w-full flex flex-col items-center py-10" id="bgcolor">
-  <h1 className="text-4xl font-bold text-blue-300 mb-10 text-center">Featured Tools</h1>
+      {/* Featured Tools */}
+      <section className="w-full flex flex-col items-center py-12 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+        <h2 className="text-4xl font-bold text-blue-300 mb-12 text-center">
+          Featured Tools
+        </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl md:px-35">
-    
-    {/* Card 1 */}
-    <div className="md:w-96 h-60  transition-transform duration-400 transform hover:scale-105 hover:shadow-amber-200 shadow-amber-100 bg-blue-950 rounded-lg shadow-md  p-5 text-blue-200 flex flex-col items-center cursor-pointer"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      <img
-        src={Face_recognition}
-        alt="Face Recognition"
-        className="w-20 h-20 mb-4 object-contain"
-      />
-      <h3 className="text-xl font-bold mb-2">face_recognition</h3>
-      <p className="text-center text-sm">Detect and recognize human faces using just your webcam.</p>
-      <div className="p-2"><Button to="/facereco" /></div>
-      
+        <div className="flex flex-col gap-12 w-full max-w-6xl px-4">
+          {tools.map((tool, i) => (
+            <div
+              key={i}
+              className={`flex items-center p-8 bg-blue-900/40 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-amber-200 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.03] md:flex-nowrap ${
+                i % 2 ? "md:flex-row-reverse" : "md:flex-row"
+              }`}
+              data-aos="fade-up"
+              data-aos-delay={i * 100}
+            >
+              <div className="flex-shrink-0 mr-6 md:mr-6">
+                <img
+                  src={tool.img}
+                  alt={tool.title}
+                  className="w-36 h-36 object-contain rounded-lg shadow-md"
+                />
+              </div>
+              <div className="flex flex-col flex-1">
+                <h3 className="text-3xl font-bold text-white">{tool.title}</h3>
+                <p className="text-blue-200 mt-3 text-base">{tool.desc}</p>
+                {tool.link && (
+                  <div className="mt-4">
+                    <Button to={tool.link} />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
-
-    {/* Card 2 */}
-    <div className="md:w-96 h-60 bg-blue-950 rounded-lg shadow-md transition-transform duration-400 transform hover:scale-105 hover:shadow-amber-200 shadow-amber-100 p-5 text-blue-200 flex flex-col items-center cursor-pointer"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      <img
-        src={hand}
-        alt="Hand Gesture"
-        className="w-20 h-20 mb-4 object-contain"
-      />
-      <h3 className="text-xl font-bold mb-2">handgesture</h3>
-      <p className="text-center text-sm">Control your system or apps with hand gestures using OpenCV.</p>
-    </div>
-
-    {/* Card 3 */}
-    <div className="md:w-96 h-60 bg-blue-950 rounded-lg shadow-md transition-transform duration-400 transform hover:scale-105 hover:shadow-amber-200 shadow-amber-100 p-5 text-blue-200 flex flex-col items-center cursor-pointer"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      <img
-        src={prediction}
-        alt="Predictor"
-        className="w-20 h-20 mb-4 object-contain"
-      />
-      <h3 className="text-xl font-bold mb-2">predictor</h3>
-      <p className="text-center text-sm">A simple ML model to predict outcomes from data inputs.</p>
-    </div>
-
-    {/* Card 4 */}
-    <div className="md:w-96 h-60 bg-blue-950 rounded-lg shadow-md transition-transform duration-400 transform hover:scale-105 hover:shadow-amber-200 shadow-amber-100 p-5 text-blue-200 flex flex-col items-center cursor-pointer"
-      data-aos="zoom-in"
-      data-aos-delay="100"
-    >
-      <img
-        src={voice}
-        alt="Voice Assistant"
-        className="w-20 h-20 mb-4 object-contain"
-      />
-      <h3 className="text-xl font-bold mb-2">voice_assistant</h3>
-      <p className="text-center text-sm">Your own Jarvis-like assistant using Python’s speech recognition.</p>
-    </div>
-
-  </div>
-</div>
-
-      
-    </div>
-        </>
-    )
+  );
 }
 
 export default Home;

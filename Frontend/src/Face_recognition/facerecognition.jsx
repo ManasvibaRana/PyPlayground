@@ -59,9 +59,9 @@ export default function PlaygroundScroll() {
       </section>
 
       {/* HISTORY */}
-      <section className="min-h-screen px-10 py-20">
+      <section className="min-h-screen px-10 py-20 ">
         <h2 className="text-4xl font-bold mb-12 text-center">📜 How It Evolved</h2>
-        <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4">
+        <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
           {[
             { img: "/computerpix.png", title: "1960s — Pixels", text: "Comparing raw pixel grids to match faces. Tedious, inaccurate, but historic." },
             { img: "/algo.jpg", title: "1990s — Algorithms", text: "Rise of Haar cascades. Automated matching made real-time detection possible." },
@@ -79,7 +79,7 @@ export default function PlaygroundScroll() {
       </section>
 
       {/* REAL WORLD */}
-      <section className="min-h-screen px-10 py-20 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
+      <section className=" px-10 py-12 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
         <h2 className="text-4xl font-bold mb-12 text-center">🌍 Real-World Applications</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[
