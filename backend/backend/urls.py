@@ -29,6 +29,9 @@ urlpatterns = [
     path('objectdetaction/',include('yolo.urls')),
     path('deepface/',include('deep_face.urls')),
     path('collab/',include('collab.urls')),
+    path('chat/',include('chatbot.urls')),
+    path('chatbot/', include('chatbot.urls')),
+    
 
  
 

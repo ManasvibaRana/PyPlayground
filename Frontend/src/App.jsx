@@ -3,7 +3,7 @@ import Homepage from './Landing/Homepage'
 import './App.css'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './checklogin/Login';
 import FaceRecognition from './Face_recognition/FaceRecognition'
 import Handcontroll from './handcontrol/HandControl'
@@ -13,6 +13,8 @@ import YoloPlayground from './yolo/yolodetaction';
 import DeepFacePlayground from './Deepface/Deepface';
 import {ProjectsList} from './collab/ProjectsList';
 import AddProjectModal from './collab/AddProjectModal';
+import PyTutorChat from './chatbot/PyTutorChat';
+import GlobalNavbar from './components/GlobalNavbar';
 
 function App() {
     useEffect(() => {
@@ -21,10 +23,12 @@ function App() {
 
    }, []);
 
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
+
   return (
     <>
-   
-
+    {!isLanding && <GlobalNavbar />}
      <Routes>
       <Route path="/" element={<Homepage />} />
       <Route path="/login" element={<Login />} />
@@ -36,6 +40,9 @@ function App() {
       <Route path="/deepface" element={<DeepFacePlayground/>}/>
       <Route path="/collab" element={<ProjectsList />} />
       <Route path="/collab/add" element={<AddProjectModal />} /> 
+      <Route path="/chatbot" element={<PyTutorChat />} /> 
+
+
     
 
     </Routes>

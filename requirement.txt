@@ -1,1 +1,1 @@
-pip install ultralytics opencv-python pyautogui
+pip install ultralytics opencv-python pyautogui google-generativeai python-dotenv djangorestframework django-cors-headers

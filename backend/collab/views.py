@@ -130,27 +130,7 @@ def get_join_request_messages(request, request_id):
     return Response(serializer.data)
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def project_chat(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
 
-    # GET messages
-    if request.method == 'GET':
-        messages = project.messages.all().order_by('created_at')
-        serializer = ProjectMessageSerializer(messages, many=True)
-        return Response(serializer.data)
-
-    # POST message
-    if request.method == 'POST':
-        message_text = request.data.get('message', '').strip()
-        if not message_text:
-            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
-        
-        msg = ProjectMessage.objects.create(project=project, sender=request.user, message=message_text)
-        serializer = ProjectMessageSerializer(msg)
-        return Response(serializer.data, status=201)
-    
 
 
 from rest_framework.decorators import api_view, permission_classes
@@ -182,37 +162,7 @@ def list_project_join_requests(request, project_id):
     serializer = JoinRequestSerializer(qs, many=True)
     return Response(serializer.data)
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def project_chat(request, project_id):
-    """
-    Group chat: 
-    - Only approved members can see/post messages.
-    - Pending join requests cannot see messages until accepted.
-    """
-    project = get_object_or_404(Project, id=project_id)
-    user = request.user
 
-    # Check membership status
-    membership = ProjectMember.objects.filter(project=project, user=user).first()
-    if not membership:
-        return Response({'detail': 'You must be a project member to access chat'}, status=403)
-
-    # GET messages
-    if request.method == 'GET':
-        messages = project.messages.all().order_by('created_at')
-        serializer = ProjectMessageSerializer(messages, many=True)
-        return Response(serializer.data)
-
-    # POST message
-    if request.method == 'POST':
-        message_text = request.data.get('message', '').strip()
-        if not message_text:
-            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
-        
-        msg = ProjectMessage.objects.create(project=project, sender=user, message=message_text)
-        serializer = ProjectMessageSerializer(msg)
-        return Response(serializer.data, status=201)
 
 
 @api_view(['GET'])
@@ -237,6 +187,54 @@ def get_join_request_messages(request, request_id):
 @permission_classes([IsAuthenticated])
 def project_chat(request, project_id):
     """
+    Unified chat for project:
+    - Members see group chat.
+    - Admin sees all chats, including pending requests.
+    - Pending join requests see their private chat only.
+    """
+    project = get_object_or_404(Project, id=project_id)
+    user = request.user
+
+    is_owner = user == project.created_by
+    member = ProjectMember.objects.filter(project=project, user=user).first()
+    pending_request = ProjectJoinRequest.objects.filter(project=project, user=user, status='pending').first()
+
+    # Handle GET
+    if request.method == 'GET':
+        if member or is_owner:
+            # Owner: see all messages, including pending requests
+            messages = project.messages.all().order_by('created_at')
+            serializer = ProjectMessageSerializer(messages, many=True)
+            return Response(serializer.data)
+
+        elif pending_request:
+            # Pending user: only their private messages
+            return join_request_chat(request, pending_request.id)
+
+        else:
+            return Response({
+                'detail': 'You are not a member yet. Use join request chat until accepted.'
+            }, status=403)
+
+    # Handle POST
+    if request.method == 'POST':
+        message_text = request.data.get('message', '').strip()
+        if not message_text:
+            return Response({'success': False, 'message': 'Message cannot be empty'}, status=400)
+
+        if member or is_owner:
+            # Send a group message
+            msg = ProjectMessage.objects.create(project=project, sender=user, message=message_text)
+        elif pending_request:
+            # Send a private join request message
+            msg = ProjectMessage.objects.create(join_request=pending_request, sender=user, message=message_text)
+        else:
+            return Response({'detail': 'You cannot send messages.'}, status=403)
+
+        serializer = ProjectMessageSerializer(msg)
+        return Response(serializer.data, status=201)
+
+    """
     Group chat:
     - Only approved members can see/post messages.
     - Pending join requests cannot see messages until accepted.
@@ -245,11 +243,11 @@ def project_chat(request, project_id):
     user = request.user
 
     # Check if user is member
-    membership = ProjectMember.objects.filter(project=project, user=user).first()
-    if not membership:
+    # membership = ProjectMember.objects.filter(project=project, user=user).first()
+    if not ProjectMember.objects.filter(project=project, user=user).exists() and user != project.created_by:
         return Response({
             'detail': 'You are not a member yet. '
-                      'Use join request chat until accepted.'
+                    'Use join request chat until accepted.'
         }, status=403)
 
     # ✅ Members only: fetch or send group chat messages

@@ -19,18 +19,16 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // join flow
   const [joining, setJoining] = useState(false);
   const [joinMessage, setJoinMessage] = useState(null);
 
-  // requests (owner only)
   const [requests, setRequests] = useState([]);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
-  const lastRequestIdsRef = useRef(new Set()); // track for "new" detection
+  const lastRequestIdsRef = useRef(new Set());
 
-  // chat
   const [chat, setChat] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const chatContainerRef = useRef(null);
 
   const currentUserId = currentUser?.id;
 
@@ -43,16 +41,18 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
     loadProject();
   }, [projectId]);
 
-  // Poll chat + join requests (for owner) every 6s
+  // Poll chat + join requests every 3s
   useEffect(() => {
     if (!projectId) return;
-    const id = setInterval(() => {
+
+    const interval = setInterval(() => {
       refreshChat();
       if (project?.created_by?.id === currentUserId) {
-        refreshRequests(true); // true => detect and maybe open modal
+        refreshRequests(true);
       }
-    }, 6000);
-    return () => clearInterval(id);
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [projectId, project, currentUserId]);
 
   const loadProject = async () => {
@@ -63,12 +63,10 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
       });
       setProject(data);
 
-      // Owner? Load requests.
       if (currentUserId === data?.created_by?.id) {
         await refreshRequests(false);
       }
 
-      // Load chat
       await refreshChat();
     } catch (err) {
       console.error('Error loading project:', err);
@@ -100,31 +98,63 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
       } else {
         lastRequestIdsRef.current = new Set(list.map((r) => r.id));
       }
-    } catch (err) {
-      // Owner may hit 403 or route may not exist if backend not updated yet
+    } catch {
       setRequests([]);
     }
   };
 
   const refreshChat = async () => {
-  try {
-    let url;
-    if (isMember) {
-      url = `${API_BASE}/projects/${projectId}/chat/`;
-    } else if (hasPending && project.pending_request_id) {
-      url = `${API_BASE}/join_requests/${project.pending_request_id}/chat/`;
-    } else {
-      setChat([]);
-      return;
-    }
-    const { data } = await axios.get(url, { withCredentials: true });
-    setChat(Array.isArray(data) ? data : []);
-  } catch (err) {
-    setChat([]);
-  }
-};
+    try {
+      if (!project) return;
 
-  // === Join Flow: request-based ===
+      const isOwner = currentUserId === project.created_by?.id;
+      const isMember = !!project.is_member || isOwner;
+      const hasPending = !!project.has_pending_request;
+
+      let urls = [];
+
+      if (isOwner) {
+        // Owner sees all group messages + all pending requests
+        urls.push(`${API_BASE}/projects/${projectId}/chat/`);
+        requests
+          .filter((r) => r.status === 'pending')
+          .forEach((r) => urls.push(`${API_BASE}/join_requests/${r.id}/chat/`));
+      } else if (isMember) {
+        urls.push(`${API_BASE}/projects/${projectId}/chat/`);
+      } else if (hasPending && project.pending_request_id) {
+        urls.push(`${API_BASE}/join_requests/${project.pending_request_id}/chat/`);
+      } else {
+        setChat([]);
+        return;
+      }
+
+      // Fetch all chat endpoints and merge
+      const chatResponses = await Promise.all(
+        urls.map((u) => axios.get(u, { withCredentials: true }))
+      );
+
+      let allMessages = [];
+      chatResponses.forEach((res) => {
+        if (Array.isArray(res.data)) allMessages = allMessages.concat(res.data);
+      });
+
+      // Sort messages by created_at
+      allMessages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+      setChat(allMessages);
+
+      // Auto-scroll
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      }, 50);
+    } catch (err) {
+      console.error('Error fetching chat:', err);
+      setChat([]);
+    }
+  };
+
   const handleRequestJoin = async () => {
     if (!project) return;
     setJoining(true);
@@ -133,17 +163,14 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
       const { data } = await axios.post(
         `${API_BASE}/projects/${project.id}/request_join/`,
         { message: '' },
-        {
-          withCredentials: true,
-          headers: { 'X-CSRFToken': getCSRFToken() },
-        }
+        { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
       );
       setJoinMessage({
         type: data.success ? 'success' : 'error',
         text: data.message || (data.success ? 'Request sent' : 'Request failed'),
       });
       await loadProject();
-    } catch (err) {
+    } catch {
       setJoinMessage({ type: 'error', text: 'Failed to send join request.' });
     } finally {
       setJoining(false);
@@ -158,50 +185,62 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
         { action },
         { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
       );
-      // refresh project + list (member_count may change on accept)
       await loadProject();
     } catch (err) {
       console.error('Failed to respond to request', err);
     }
   };
 
-  // === Chat ===
- const handleSendMessage = async () => {
-  if (!newMessage.trim()) return;
-  try {
-    let url;
-    if (isMember) {
-      url = `${API_BASE}/projects/${projectId}/chat/`;
-    } else if (hasPending && project.pending_request_id) {
-      url = `${API_BASE}/join_requests/${project.pending_request_id}/chat/`;
-    } else {
-      return; // not allowed
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+    try {
+      if (!project) return;
+
+      const isOwner = currentUserId === project.created_by?.id;
+      const isMember = !!project.is_member || isOwner;
+      const hasPending = !!project.has_pending_request;
+
+      let url;
+      if (isOwner || isMember) {
+        url = `${API_BASE}/projects/${projectId}/chat/`;
+      } else if (hasPending && project.pending_request_id) {
+        url = `${API_BASE}/join_requests/${project.pending_request_id}/chat/`;
+      } else return;
+
+      const { data } = await axios.post(
+        url,
+        { message: newMessage },
+        { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
+      );
+
+      setChat((prev) => [...prev, data]);
+      setNewMessage('');
+
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      }, 50);
+    } catch (err) {
+      console.error('Error sending message:', err);
     }
-    const { data } = await axios.post(
-      url,
-      { message: newMessage },
-      { withCredentials: true, headers: { 'X-CSRFToken': getCSRFToken() } }
-    );
-    setChat((prev) => [...prev, data]);
-    setNewMessage('');
-  } catch (err) {
-    console.error('Error sending message:', err);
-  }
-};
+  };
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
   if (!project) return <div className="p-8 text-center text-red-600">Project not found.</div>;
 
   const isOwner = currentUserId === project.created_by?.id;
-  const isMember = !!project.is_member;
+  const isMember = !!project.is_member || isOwner;
   const hasPending = !!project.has_pending_request;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Back Button */}
       <button onClick={onBack} className="flex items-center text-blue-600 hover:text-blue-700 mb-6">
         <ArrowLeft className="w-5 h-5 mr-2" /> Back to Projects
       </button>
 
+      {/* Join message */}
       {joinMessage && (
         <div
           className={`mb-6 p-4 rounded-lg ${
@@ -214,17 +253,15 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
         </div>
       )}
 
+      {/* Project Info */}
       <h1 className="text-3xl font-bold mb-4">{project.title}</h1>
-
       <div className="flex items-center gap-4 text-gray-600 mb-4">
         <Calendar className="w-5 h-5" />
         <span>{project.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}</span>
         <User className="w-5 h-5" /> <span>{project.created_by?.username || 'Unknown'}</span>
         <User className="w-5 h-5" /> <span>{project.member_count ?? 0} Members</span>
       </div>
-
       <p className="mb-4">{project.description}</p>
-
       <div className="flex flex-wrap gap-2 mb-4">
         {Array.isArray(project.tech_stack) && project.tech_stack.length > 0 ? (
           project.tech_stack.map((tech, idx) => <TechStackBadge key={idx} tech={tech} />)
@@ -233,7 +270,7 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
         )}
       </div>
 
-      {/* Join/request UI for non-owners */}
+      {/* Join/request UI */}
       {!isOwner && (
         <div className="mb-4">
           {isMember ? (
@@ -259,7 +296,7 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
         </div>
       )}
 
-      {/* Owner: Requests list + modal */}
+      {/* Owner requests list */}
       {isOwner && (
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-3">Join Requests</h2>
@@ -268,7 +305,7 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
           ) : (
             <ul className="space-y-2">
               {requests.map((req) => (
-                <li key={req.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md border">
+                <li key={req.id} className="flex justify-between items-center p-3 bg-gray-50 text-black rounded-md border">
                   <div className="flex flex-col">
                     <span className="font-medium">{req.user?.username || 'Unknown'}</span>
                     <span className="text-sm text-gray-500">{req.message || ''}</span>
@@ -302,7 +339,7 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
       {/* Chat */}
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-3">Project Chat</h2>
-        <div className="space-y-2 mb-3 max-h-64 overflow-y-auto p-2 border rounded-md">
+        <div ref={chatContainerRef} className="space-y-2 mb-3 max-h-64 overflow-y-auto p-2 border rounded-md">
           {chat.length === 0 ? (
             <p className="text-gray-500">No messages yet.</p>
           ) : (
@@ -332,17 +369,13 @@ export const ProjectDetails = ({ projectId, onBack, currentUser }) => {
         </div>
       </div>
 
-      {/* Requests Modal (owner) */}
+      {/* Requests Modal */}
       {isOwner && showRequestsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-5">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-semibold">New Join Requests</h3>
-              <button
-                onClick={() => setShowRequestsModal(false)}
-                className="p-1 rounded hover:bg-gray-100"
-                aria-label="Close"
-              >
+              <button onClick={() => setShowRequestsModal(false)} className="p-1 rounded hover:bg-gray-100">
                 <XIcon className="w-5 h-5" />
               </button>
             </div>
