@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../checklogin/CheckLogin";
 
 export default function PyTutorChat() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false); // State to track loading
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const sendMessage = async () => {
+    if (!isLoggedIn()) { navigate('/login'); return; }
     if (!message.trim() || loading) return; // Don't send if empty or already loading
 
     const userMessage = { sender: "user", text: message };

@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 
-from pyplayground.views import login_user,signup_user  # import your login view
+from pyplayground.views import login_user,signup_user,logout_user  # import your login view
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/login/', login_user, name='login'),
     path('api/signup/', signup_user, name='signup'),
+    path('api/logout/', logout_user, name='logout'),
     path('facereco/', include('facerecognition.urls')),
     path('handcontrol/', include('handcontroll.urls')),
     path('objectdetaction/',include('yolo.urls')),

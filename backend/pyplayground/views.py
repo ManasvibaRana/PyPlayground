@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from django.views.decorators.csrf import csrf_exempt,ensure_csrf_cookie
 from django.http import JsonResponse
@@ -58,3 +58,16 @@ def login_user(request):
 
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+
+# ✅ LOGOUT API
+@ensure_csrf_cookie
+def logout_user(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests allowed'}, status=405)
+
+    try:
+        logout(request)
+        return JsonResponse({'status': 'success', 'message': 'Logged out'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

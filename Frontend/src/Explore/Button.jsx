@@ -1,12 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router';
+import { isLoggedIn } from '../checklogin/CheckLogin';
 
 const Button = ({to}) => {
 
   const navigate = useNavigate()
   const handleClick = () => {
-
+     if (!isLoggedIn() && ["/facereco","/handco","/yolo","/deepface"].includes(to)) {
+        navigate('/login');
+        return;
+     }
      navigate(to);
   };
   return (

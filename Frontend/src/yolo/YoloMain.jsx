@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../checklogin/CheckLogin";
 
 export default function YoloDemo() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const hiddenCanvasRef = useRef(null); // offscreen canvas for snapshots
   const [running, setRunning] = useState(false);
+  const navigate = useNavigate();
 
   // Initialize camera whenever running becomes true
   useEffect(() => {
@@ -106,7 +109,7 @@ export default function YoloDemo() {
       <canvas ref={hiddenCanvasRef} style={{ display: "none" }} />
 
       <button
-        onClick={() => setRunning(!running)}
+        onClick={() => { if (!isLoggedIn()) { navigate('/login'); return; } setRunning(!running); }}
         className={`mt-4 px-4 py-2 rounded-lg ${
           running ? "bg-red-600" : "bg-blue-600"
         } text-white`}

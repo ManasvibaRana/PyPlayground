@@ -40,8 +40,31 @@ const Signup = () => {
       if (!response.ok) {
         alert("Signup failed: " + (data.message || "Unknown error"));
       } else {
-        alert("Signup successful!");
-        navigate("/explore"); // Redirect to login page
+        // Auto-login after successful signup
+        try {
+          const loginRes = await fetch("http://localhost:8000/api/login/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCsrfToken()
+            },
+            credentials: "include",
+            body: JSON.stringify({ username, password })
+          });
+          const loginData = await loginRes.json();
+          if (loginRes.ok) {
+            sessionStorage.setItem("user_id", loginData.user_id || loginData.id);
+            sessionStorage.setItem("username", loginData.username);
+            alert("Signup successful! Welcome, " + loginData.username);
+            navigate("/");
+          } else {
+            alert("Signup succeeded but auto-login failed: " + (loginData.message || ""));
+            navigate("/login");
+          }
+        } catch (e) {
+          alert("Signup succeeded but auto-login failed. Please login.");
+          navigate("/login");
+        }
       }
     } catch (error) {
       alert("Network or parsing error: " + error.message);

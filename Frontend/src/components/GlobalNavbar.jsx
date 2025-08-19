@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isLoggedIn, logout as clearSession } from "../checklogin/CheckLogin";
 
 export default function GlobalNavbar() {
 	const [menuOpen, setMenuOpen] = useState(false);
+	const [profileOpen, setProfileOpen] = useState(false);
+	const [loggedIn, setLoggedIn] = useState(isLoggedIn());
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	useEffect(() => {
+		setLoggedIn(isLoggedIn());
+	}, [location.pathname]);
 
 	const linkClass = (path) =>
 		`px-3 py-2 rounded-md text-sm ${
@@ -31,13 +38,47 @@ export default function GlobalNavbar() {
 						<Link to="/chatbot" className={linkClass("/chatbot")}>Chatbot</Link>
 					</div>
 
-					<div className="hidden md:flex">
-						<button
-							className="bg-amber-300 text-blue-900 font-bold px-4 py-1 rounded border border-blue-950 shadow hover:bg-amber-400 transition"
-							onClick={() => navigate("/login")}
-						>
-							Login ↦
-						</button>
+					<div className="hidden md:flex relative items-center">
+						{!loggedIn ? (
+							<button
+								className="bg-amber-300 text-blue-900 font-bold px-4 py-1 rounded border border-blue-950 shadow hover:bg-amber-400 transition"
+								onClick={() => navigate("/login")}
+							>
+								Login ↦
+							</button>
+						) : (
+							<div className="relative">
+								<button
+									onClick={() => setProfileOpen(!profileOpen)}
+									className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700 hover:border-slate-600"
+								>
+									<span className="h-6 w-6 rounded-full bg-indigo-500/80 flex items-center justify-center text-xs">{(sessionStorage.getItem('username') || 'U').charAt(0).toUpperCase()}</span>
+									<span className="text-sm text-slate-200">Profile</span>
+								</button>
+								{profileOpen && (
+									<div className="absolute right-0 mt-2 w-40 bg-slate-900 border border-slate-700 rounded-md shadow-lg">
+										<button
+											className="w-full text-left px-3 py-2 text-sm hover:bg-slate-800"
+											onClick={async () => {
+												try {
+													await fetch("http://localhost:8000/api/logout/", {
+														method: "POST",
+														credentials: "include",
+														headers: { "Content-Type": "application/json" },
+													});
+												} catch {}
+												clearSession();
+												setProfileOpen(false);
+												setLoggedIn(false);
+												navigate("/");
+											}}
+										>
+											Logout
+										</button>
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 
 					<div className="md:hidden flex items-center">
@@ -67,12 +108,32 @@ export default function GlobalNavbar() {
 						<Link to="/deepface" className={linkClass("/deepface")}>DeepFace</Link>
 						<Link to="/collab" className={linkClass("/collab")}>Collab</Link>
 						<Link to="/chatbot" className={linkClass("/chatbot")}>Chatbot</Link>
-						<button
-							className="block w-full text-left bg-amber-300 text-blue-900 font-bold px-3 py-2 rounded border border-blue-950 shadow hover:bg-amber-400 transition"
-							onClick={() => navigate("/login")}
-						>
-							Login ↦
-						</button>
+						{!loggedIn ? (
+							<button
+								className="block w-full text-left bg-amber-300 text-blue-900 font-bold px-3 py-2 rounded border border-blue-950 shadow hover:bg-amber-400 transition"
+								onClick={() => navigate("/login")}
+							>
+								Login ↦
+							</button>
+						) : (
+							<button
+								className="block w-full text-left bg-slate-800 border border-slate-700 px-3 py-2 rounded hover:bg-slate-700"
+								onClick={async () => {
+									try {
+										await fetch("http://localhost:8000/api/logout/", {
+											method: "POST",
+											credentials: "include",
+											headers: { "Content-Type": "application/json" },
+										});
+									} catch {}
+									clearSession();
+									setMenuOpen(false);
+									navigate("/");
+								}}
+							>
+								Logout
+							</button>
+						)}
 					</div>
 				)}
 			</div>

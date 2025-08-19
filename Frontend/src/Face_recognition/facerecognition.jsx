@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../checklogin/CheckLogin";
 import './css/face.css';
 import face_recognition from '../Explore/images/Face_recognition.gif'
 import FaceMain from './FaceMain';
@@ -7,6 +9,7 @@ import FaceMain from './FaceMain';
 export default function PlaygroundScroll() {
   const [activeStep, setActiveStep] = useState(null);
   const [showDemo, setShowDemo] = useState(false);
+  const navigate = useNavigate();
    
   const steps = [
     {
@@ -128,7 +131,10 @@ export default function PlaygroundScroll() {
        <section className="text-center py-2">
         {!showDemo && (
           <button
-            onClick={() => setShowDemo(true)}
+            onClick={() => {
+              if (!isLoggedIn()) { navigate('/login'); return; }
+              setShowDemo(true);
+            }}
             className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full text-white text-2xl font-bold shadow-lg hover:scale-105 transition duration-300"
           >
             🚀 Try Live Demo

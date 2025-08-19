@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import svg from "./images/SVG.svg"
 
 import { useNavigate,} from "react-router-dom";
+import { isLoggedIn, logout as clearSession } from "../checklogin/CheckLogin";
 
 
 
@@ -10,7 +11,13 @@ import { useNavigate,} from "react-router-dom";
 
 function Navbar({scrollToSection}) {
   const [menuOpen, setMenuOpen] = useState(false);
- const navigate = useNavigate();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
 
  const handleLoginClick = () => {
   navigate('/login');
@@ -38,11 +45,40 @@ function Navbar({scrollToSection}) {
             <a  href="#link" onClick={() => scrollToSection('link')} className="px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-blue-950 hover:text-white">Links</a>
           </div>
 
-          {/* Login Button */}
-          <div className="hidden sm:flex">
-            <button className="bg-amber-300 text-blue-900 font-bold px-4 py-1 rounded border border-blue-950 shadow hover:bg-amber-400 transition" onClick={handleLoginClick} >
-              Login &#x21E5;
-            </button>
+          {/* Login / Profile */}
+          <div className="hidden sm:flex relative items-center">
+            {!loggedIn ? (
+              <button className="bg-amber-300 text-blue-900 font-bold px-4 py-1 rounded border border-blue-950 shadow hover:bg-amber-400 transition" onClick={handleLoginClick} >
+                Login &#x21E5;
+              </button>
+            ) : (
+              <div className="relative">
+                <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700 hover:border-slate-600">
+                  <span className="h-6 w-6 rounded-full bg-indigo-500/80 flex items-center justify-center text-xs">
+                    {(sessionStorage.getItem('username') || 'U').charAt(0).toUpperCase()}
+                  </span>
+                  <span className="text-sm text-slate-200">Profile</span>
+                </button>
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-slate-900 border border-slate-700 rounded-md shadow-lg">
+                    <button
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-slate-800"
+                      onClick={async () => {
+                        try {
+                          await fetch("http://localhost:8000/api/logout/", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } });
+                        } catch {}
+                        clearSession();
+                        setProfileOpen(false);
+                        setLoggedIn(false);
+                        navigate("/");
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {/* Mobile Hamburger */}
           <div className="sm:hidden flex items-center">
@@ -72,9 +108,23 @@ function Navbar({scrollToSection}) {
             <a href="#pythonhighlight" onClick={() => scrollToSection('pythonhighlight')} className="block px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-blue-950 hover:text-white">Python Highlights</a>
             <a href="#howitworks" onClick={() => scrollToSection('howitworks')} className="block px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-blue-950 hover:text-white">How it works</a>
             <a  href="#link" onClick={() => scrollToSection('link')} className="block px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-blue-950 hover:text-white">Links</a>
-            <button className="block w-full text-left bg-amber-300 text-blue-900 font-bold px-3 py-2 rounded border border-blue-950 shadow hover:bg-amber-400 transition">
-              Login &#x21E5;
-            </button>
+            {!loggedIn ? (
+              <button className="block w-full text-left bg-amber-300 text-blue-900 font-bold px-3 py-2 rounded border border-blue-950 shadow hover:bg-amber-400 transition" onClick={handleLoginClick}>
+                Login &#x21E5;
+              </button>
+            ) : (
+              <button className="block w-full text-left bg-slate-800 border border-slate-700 px-3 py-2 rounded hover:bg-slate-700" onClick={async () => {
+                try {
+                  await fetch("http://localhost:8000/api/logout/", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } });
+                } catch {}
+                clearSession();
+                setMenuOpen(false);
+                setLoggedIn(false);
+                navigate("/");
+              }}>
+                Logout
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { isLoggedIn } from '../checklogin/CheckLogin';
 import { Plus, Search } from 'lucide-react';
 import { ProjectCard } from './ProjectCard';
 import AddProjectModal from './AddProjectModal';
@@ -23,8 +25,10 @@ export const ProjectsList = () => {
   const [joinMessage, setJoinMessage] = useState(null);
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isLoggedIn()) { navigate('/login'); return; }
     const init = async () => {
       try {
         await fetch('http://localhost:8000/collab/csrf/', { credentials: 'include' });

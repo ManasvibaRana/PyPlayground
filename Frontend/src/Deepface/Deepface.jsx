@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../checklogin/CheckLogin";
 import "./css/deep.css"; // reuse same css
 import deepfaceGif from "../Explore/images/voice.gif"; // placeholder gif/animation
 import DeepFaceDemo from "./DeepFaceDemo"; // live demo component
@@ -6,6 +8,7 @@ import DeepFaceDemo from "./DeepFaceDemo"; // live demo component
 export default function DeepFacePlayground() {
   const [activeStep, setActiveStep] = useState(null);
   const [showDemo, setShowDemo] = useState(false);
+  const navigate = useNavigate();
 
   const steps = [
     {
@@ -116,7 +119,7 @@ export default function DeepFacePlayground() {
       <section className="text-center py-2">
         {!showDemo && (
           <button
-            onClick={() => setShowDemo(true)}
+            onClick={() => { if (!isLoggedIn()) { navigate('/login'); return; } setShowDemo(true); }}
             className="bg-gradient-to-r from-purple-500 to-pink-600 px-8 py-3 rounded-full text-white text-2xl font-bold shadow-lg hover:scale-105 transition duration-300"
           >
             🚀 Try Live Demo
