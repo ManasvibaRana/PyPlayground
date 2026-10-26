@@ -1,0 +1,10 @@
+django
+djangorestframework
+django-cors-headers
+python-dotenv
+ultralytics
+opencv-python
+pyautogui
+google-generativeai
+face_recognition
+fer
