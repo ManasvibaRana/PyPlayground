@@ -154,7 +154,7 @@ function Home() {
             <div className="p-8 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center gap-6">
               <img src={community} alt="Collaboration" className="w-24 h-24 object-contain rounded-xl ring-1 ring-slate-700/60" />
               <h3 className="text-2xl font-bold text-white">Collaborate on Projects</h3>
-              <p className="mt-3 text-slate-300">Use the Collab section to create, discover, and join AI projects. Share ideas, tasks, and progress—all in one place.</p>
+              <p className="mt-3 text-slate-300">Use the Collab section to create, discover, and join AI projects. Share ideas, tasks, and progress - all in one place.</p>
             </div>
             <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/60 border border-slate-700/60 flex items-center gap-6">
               <img src={techw} alt="Chatbot" className="w-24 h-24 object-contain rounded-xl ring-1 ring-slate-700/60" />

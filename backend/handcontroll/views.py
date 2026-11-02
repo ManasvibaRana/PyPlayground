@@ -38,7 +38,7 @@ def recognize_hand_live(request):
             if len(kps) > 0:
                 # wrist_y = y coordinate of wrist
                 wrist_y = kps[0][0][1]
-                hand_y = wrist_y / frame.shape[0]  # normalize 0–1
+                hand_y = wrist_y / frame.shape[0]  # normalize 0-1
                 message = "Hand detected"
 
                 # Draw keypoints

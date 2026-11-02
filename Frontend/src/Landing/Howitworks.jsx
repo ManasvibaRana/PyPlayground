@@ -8,7 +8,7 @@ export default function Howitworks() {
     },
     {
       title: "Try Live Demo",
-      desc: "Interact instantly — no setup or installation needed.",
+      desc: "Interact instantly - no setup or installation needed.",
     },
     {
       title: "See Real Results",

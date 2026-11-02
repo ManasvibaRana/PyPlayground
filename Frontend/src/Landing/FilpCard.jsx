@@ -6,10 +6,10 @@ import endless from "./images/endless.png"
 const cardsData = [
   {
     frontTitle: "Why Python?",
-    frontText: "Simple, powerful, and beginner-friendly — Python makes coding fun.",
+    frontText: "Simple, powerful, and beginner-friendly - Python makes coding fun.",
     frontImage: Pythonlogo, // replace with your image path
     backText:
-      "Python’s easy syntax and huge community make learning programming smooth and enjoyable for everyone — from newbies to pros.",
+      "Python’s easy syntax and huge community make learning programming smooth and enjoyable for everyone - from newbies to pros.",
   },
   {
     frontTitle: "Real-World Impact",
@@ -27,7 +27,7 @@ const cardsData = [
   },
   {
     frontTitle: "Endless Possibilities",
-    frontText: "Build anything you imagine — Python grows with you.",
+    frontText: "Build anything you imagine - Python grows with you.",
     frontImage: endless,
     backText:
       "From web apps to AI and games, Python’s versatility lets you create projects limited only by your imagination.",

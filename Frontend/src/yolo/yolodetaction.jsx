@@ -45,11 +45,11 @@ export default function YoloPlayground() {
       <section className="min-h-screen flex flex-col md:flex-row items-center justify-between px-10 py-20">
         <div className="md:w-1/2 mb-12 md:mb-0">
           <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-green-200 to-blue-400 bg-clip-text text-transparent drop-shadow-lg">
-            Explore YOLO Object Detection — Step by Step
+            Explore YOLO Object Detection - Step by Step
           </h1>
           <p className="text-xs md:text-xl text-gray-300 max-w-md leading-relaxed">
             Learn how <span className="font-bold text-green-400">YOLO</span> detects everyday objects.  
-            From loading the model to detecting apples and cars — all visualized in an interactive journey.
+            From loading the model to detecting apples and cars - all visualized in an interactive journey.
           </p>
         </div>
         <div className="md:w-1/2 flex justify-center">
@@ -66,11 +66,11 @@ export default function YoloPlayground() {
         <h2 className="text-4xl font-bold mb-12 text-center">📜 Evolution of Object Detection</h2>
         <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
           {[
-            { img: "/sliding_window.png", title: "Pre-2010s — Sliding Windows", text: "Manually scanning every patch of an image. Accurate but very slow." },
-            { img: "/rcnn.png", title: "2014 — R-CNN", text: "Deep learning enters detection. Region proposals plus CNNs improve accuracy but are still slow." },
-            { img: "/yolo.png", title: "2016 — YOLO v1", text: "You Only Look Once. End-to-end detection in a single pass — real-time speed." },
-            { img: "/yolov5.jpg", title: "2020 — YOLOv5", text: "Optimized for speed, accuracy, and ease of training." },
-            { img: "/yolov8.png", title: "Today — YOLOv8", text: "Latest YOLO versions achieve state-of-the-art detection on diverse tasks." },
+            { img: "/sliding_window.png", title: "Pre-2010s - Sliding Windows", text: "Manually scanning every patch of an image. Accurate but very slow." },
+            { img: "/rcnn.png", title: "2014 - R-CNN", text: "Deep learning enters detection. Region proposals plus CNNs improve accuracy but are still slow." },
+            { img: "/yolo.png", title: "2016 - YOLO v1", text: "You Only Look Once. End-to-end detection in a single pass - real-time speed." },
+            { img: "/yolov5.jpg", title: "2020 - YOLOv5", text: "Optimized for speed, accuracy, and ease of training." },
+            { img: "/yolov8.png", title: "Today - YOLOv8", text: "Latest YOLO versions achieve state-of-the-art detection on diverse tasks." },
           ].map((item, idx) => (
             <div
               key={idx}

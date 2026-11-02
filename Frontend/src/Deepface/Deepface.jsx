@@ -48,11 +48,11 @@ export default function DeepFacePlayground() {
       <section className="min-h-screen flex flex-col md:flex-row items-center justify-between px-10 py-20">
         <div className="md:w-1/2 mb-12 md:mb-0">
           <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
-            Explore DeepFace Recognition — Step by Step
+            Explore DeepFace Recognition - Step by Step
           </h1>
           <p className="text-xs md:text-xl text-gray-300 max-w-md leading-relaxed">
             Learn how <span className="font-bold text-purple-400">DeepFace</span> recognizes faces.  
-            From loading the model to detecting people in your dataset — all visualized interactively.
+            From loading the model to detecting people in your dataset - all visualized interactively.
           </p>
         </div>
         <div className="md:w-1/2 flex justify-center">
@@ -69,10 +69,10 @@ export default function DeepFacePlayground() {
         <h2 className="text-4xl font-bold mb-12 text-center">📜 Evolution of Face Recognition</h2>
         <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
           {[
-            { img: "/eigenfaces.png", title: "1990s — Eigenfaces", text: "Early method using PCA to recognize faces." },
-            { img: "/fisherfaces.png", title: "2000s — Fisherfaces", text: "Improved accuracy using LDA for face classification." },
-            { img: "/deepface.png", title: "2014 — DeepFace", text: "Facebook's model achieved near-human accuracy using deep learning." },
-            { img: "/facenet.png", title: "2015 — FaceNet", text: "Introduced embeddings and triplet loss for robust recognition." },
+            { img: "/eigenfaces.png", title: "1990s - Eigenfaces", text: "Early method using PCA to recognize faces." },
+            { img: "/fisherfaces.png", title: "2000s - Fisherfaces", text: "Improved accuracy using LDA for face classification." },
+            { img: "/deepface.png", title: "2014 - DeepFace", text: "Facebook's model achieved near-human accuracy using deep learning." },
+            { img: "/facenet.png", title: "2015 - FaceNet", text: "Introduced embeddings and triplet loss for robust recognition." },
             { img: "/today.png", title: "Today", text: "Multiple pretrained models like VGG-Face, OpenFace, ArcFace dominate modern recognition tasks." },
           ].map((item, idx) => (
             <div

@@ -44,7 +44,7 @@ function Homepage(){
         
         <div className="max-w-screen-sm w-full mx-auto" id="headline"  >
            <h1 className="break-words text-4xl md:text-7xl  pt-10 pb-5 font-extrabold  text-amber-300 " data-aos="zoom-in" data-aos-delay="200"><span className="text-blue-400">PyPlay</span>ground </h1>
-           <h3 className="text-2xl font-bold py-5 m-0  text-indigo-300" data-aos="zoom-in" data-aos-delay="400" >Your Interactive Hub for Python Experiments — designed to help you explore Python libraries in a fun, intuitive way</h3>
+           <h3 className="text-2xl font-bold py-5 m-0  text-indigo-300" data-aos="zoom-in" data-aos-delay="400" >Your Interactive Hub for Python Experiments - designed to help you explore Python libraries in a fun, intuitive way</h3>
            <button className="text-blue-900 bg-amber-300  h-10 w-40 font-bold shadow-md shadow-amber-100 hover:bg-amber-300 hover:scale-105 transition-all duration-300" onClick={handleClick} >Explore Now  </button>
             
         </div>

@@ -21,7 +21,7 @@ export default function handcontrol() {
     {
       id: 2,
       title: "Detect Hand Landmarks",
-      desc: "Using MediaPipe Hands, we detect 21 key points on your hand — from fingertips to wrist. These landmarks form the base for gesture recognition.",
+      desc: "Using MediaPipe Hands, we detect 21 key points on your hand - from fingertips to wrist. These landmarks form the base for gesture recognition.",
       img: "/landmarks.png",
       code: `results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))`,
     },
@@ -35,7 +35,7 @@ export default function handcontrol() {
     {
       id: 4,
       title: "Map Gestures to Scrolling",
-      desc: "Finally, we connect your hand movement to system scrolling using pyautogui. Move your hand up to scroll up, down to scroll down — touch-free.",
+      desc: "Finally, we connect your hand movement to system scrolling using pyautogui. Move your hand up to scroll up, down to scroll down - touch-free.",
       img: "/scroll.jpg",
       code: `pyautogui.scroll(100)  # up`,
     },
@@ -51,7 +51,7 @@ export default function handcontrol() {
             Control Your Screen with Just Your Hands
           </h1>
           <p className="text-xs md:text-xl text-gray-300 max-w-md leading-relaxed">
-            Control with simple hand gestures — no mouse, no touch, just movement
+            Control with simple hand gestures - no mouse, no touch, just movement
           </p>
         </div>
         <div className="md:w-1/2 flex justify-center">
@@ -64,10 +64,10 @@ export default function handcontrol() {
         <h2 className="text-4xl font-bold mb-12 text-center">📜 How It Evolved</h2>
         <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
           {[
-            { img: "/infrared.jpeg", title: "1990s — Infrared Devices", text: "Early gesture control relied on infrared sensors to detect motion." },
-            { img: "/kinect.jpeg", title: "2010 — Kinect Era", text: "Microsoft Kinect brought 3D depth-sensing cameras for gaming gestures." },
-            { img: "/leapmotion.webp", title: "2013 — Leap Motion", text: "Compact sensors tracked fingers with millimeter precision." },
-            { img: "/mediapipe.jpeg", title: "Today — AI Vision", text: "MediaPipe & OpenCV use machine learning to detect hands from a normal webcam." },
+            { img: "/infrared.jpeg", title: "1990s - Infrared Devices", text: "Early gesture control relied on infrared sensors to detect motion." },
+            { img: "/kinect.jpeg", title: "2010 - Kinect Era", text: "Microsoft Kinect brought 3D depth-sensing cameras for gaming gestures." },
+            { img: "/leapmotion.webp", title: "2013 - Leap Motion", text: "Compact sensors tracked fingers with millimeter precision." },
+            { img: "/mediapipe.jpeg", title: "Today - AI Vision", text: "MediaPipe & OpenCV use machine learning to detect hands from a normal webcam." },
           ].map((item, idx) => (
             <div key={idx} className="min-w-[300px] backdrop-blur-lg bg-white/5 border border-white/20 rounded-3xl p-6 snap-center hover:scale-105 transition transform duration-500 shadow-xl">
               <img src={item.img} alt={item.title} className="w-full h-40 object-cover rounded-2xl mb-4" />
@@ -98,7 +98,7 @@ export default function handcontrol() {
 
       {/* CODE ACCORDION */}
       <section className="px-10 py-20">
-        <h2 className="text-4xl font-bold mb-12 text-center"> How It Works — Step by Step</h2>
+        <h2 className="text-4xl font-bold mb-12 text-center"> How It Works - Step by Step</h2>
         {steps.map((step, idx) => (
           <div key={step.id} className="mb-6">
             <div

@@ -29,14 +29,14 @@ export default function PlaygroundScroll() {
     {
       id: 3,
       title: "Detect Landmarks",
-      desc: "Next, facial landmarks — like eyes, eyebrows, nose, mouth and jawline — are marked. These key points help align the face and boost accuracy for encoding and comparison.",
+      desc: "Next, facial landmarks - like eyes, eyebrows, nose, mouth and jawline - are marked. These key points help align the face and boost accuracy for encoding and comparison.",
       img: "/Third.jpg",
       code: `face_landmarks = face_recognition.face_landmarks(image)`,
     },
     {
       id: 4,
       title: "Generate Encodings",
-      desc: "Finally, you generate a 128-dimension vector representation. This encoding is your unique face signature — used for comparison. The same process works whether you’re building attendance systems or door locks.",
+      desc: "Finally, you generate a 128-dimension vector representation. This encoding is your unique face signature - used for comparison. The same process works whether you’re building attendance systems or door locks.",
       img: "/neural.jpg",
       code: `face_encodings = face_recognition.face_encodings(image, face_locations)`,
     },
@@ -49,11 +49,11 @@ export default function PlaygroundScroll() {
       <section className="min-h-screen flex flex-col md:flex-row items-center justify-between px-10 py-20">
         <div className="md:w-1/2 mb-12 md:mb-0">
           <h1 className="text-3xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-pink-200 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">
-            Unfold the Python Face Recognition Library — Visually & Practically
+            Unfold the Python Face Recognition Library - Visually & Practically
           </h1>
           <p className="text-xs md:text-xl text-gray-300 max-w-md leading-relaxed">
             Dive deep into the <span className="font-bold text-pink-400">face_recognition</span> library.  
-            Learn how modern face detection works: from raw images to encodings — step by step.
+            Learn how modern face detection works: from raw images to encodings - step by step.
           </p>
         </div>
         <div className="md:w-1/2 flex justify-center">
@@ -66,11 +66,11 @@ export default function PlaygroundScroll() {
         <h2 className="text-4xl font-bold mb-12 text-center">📜 How It Evolved</h2>
         <div className="flex overflow-x-scroll gap-8 snap-x no-scrollbar pb-4 bg-gradient-to-b from-[#1c1c3a] to-[#0f0c29]">
           {[
-            { img: "/computerpix.png", title: "1960s — Pixels", text: "Comparing raw pixel grids to match faces. Tedious, inaccurate, but historic." },
-            { img: "/algo.jpg", title: "1990s — Algorithms", text: "Rise of Haar cascades. Automated matching made real-time detection possible." },
-            { img: "/neural.jpg", title: "2000s — Deep Learning", text: "CNNs learn to detect faces with thousands of examples, boosting accuracy." },
-            { img: "/open-source.png", title: "2014 — Open Source", text: "Libraries like dlib & face_recognition made face AI accessible to all coders." },
-            { img: "/future.webp", title: "Today — Ubiquitous", text: "Phones, airports, doors — face recognition is now a daily reality." },
+            { img: "/computerpix.png", title: "1960s - Pixels", text: "Comparing raw pixel grids to match faces. Tedious, inaccurate, but historic." },
+            { img: "/algo.jpg", title: "1990s - Algorithms", text: "Rise of Haar cascades. Automated matching made real-time detection possible." },
+            { img: "/neural.jpg", title: "2000s - Deep Learning", text: "CNNs learn to detect faces with thousands of examples, boosting accuracy." },
+            { img: "/open-source.png", title: "2014 - Open Source", text: "Libraries like dlib & face_recognition made face AI accessible to all coders." },
+            { img: "/future.webp", title: "Today - Ubiquitous", text: "Phones, airports, doors - face recognition is now a daily reality." },
           ].map((item, idx) => (
             <div key={idx} className="min-w-[300px] backdrop-blur-lg bg-white/5 border border-white/20 rounded-3xl p-6 snap-center hover:scale-105 transition transform duration-500 shadow-xl">
               <img src={item.img} alt={item.title} className="w-full h-40 object-cover rounded-2xl mb-4" />
